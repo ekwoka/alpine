@@ -1,7 +1,7 @@
-import Alpine from "alpinejs/src/alpine"
+import Alpine from 'alpinejs/src/alpine'
 
 export function swapCurrentPageWithNewHtml(html, andThen) {
-    let newDocument = (new DOMParser()).parseFromString(html, "text/html")
+    let newDocument = new DOMParser().parseFromString(html, 'text/html')
     let newBody = document.adoptNode(newDocument.body)
     let newHead = document.adoptNode(newDocument.head)
 
@@ -15,15 +15,15 @@ export function swapCurrentPageWithNewHtml(html, andThen) {
 
     // @todo: only setTimeout when applying transitions
     // setTimeout(() => {
-        let oldBody = document.body
+    let oldBody = document.body
 
-        document.body.replaceWith(newBody)
+    document.body.replaceWith(newBody)
 
-        Alpine.destroyTree(oldBody)
+    Alpine.destroyTree(oldBody)
 
-        transitionIn(newBody)
+    transitionIn(newBody)
 
-        andThen()
+    andThen()
     // }, 0)
 }
 
@@ -45,48 +45,35 @@ function transitionIn(body) {
 
 function prepNewScriptTagsToRun(newBody) {
     newBody.querySelectorAll('script').forEach(i => {
-        if (i.hasAttribute('data-navigate-once')) return
+        if (i.hasAttribute('data-navigate-once')) return;
 
         i.replaceWith(cloneScriptTag(i))
     })
 }
 
 function mergeNewHead(newHead) {
-    let headChildrenHtmlLookup = Array.from(document.head.children).map(i => i.outerHTML)
+    document.head.childNodes.forEach(child => {
+        if (!isAsset(child)) child.remove()
+    })
 
-    // Only add scripts and styles that aren't already loaded on the page.
-    let garbageCollector = document.createDocumentFragment()
+    let headChildrenHtmlLookup = Array.prototype.map.call(
+        document.head.children,
+        i => i.outerHTML
+    )
 
-    for (let child of Array.from(newHead.children)) {
-        if (isAsset(child)) {
-            if (! headChildrenHtmlLookup.includes(child.outerHTML)) {
-                if (isTracked(child)) {
-                    setTimeout(() => window.location.reload())
-
-                    return
-                }
-
-                if (isScript(child)) {
-                    document.head.appendChild(cloneScriptTag(child))
-                } else {
-                    document.head.appendChild(child)
-                }
+    for (let child of newHead.children) {
+        if (
+            !isAsset(child) ||
+            !headChildrenHtmlLookup.includes(child.outerHTML)
+        ) {
+            if (isTracked(child)) {
+                 return setTimeout(() => window.location.reload())
             } else {
-                garbageCollector.appendChild(child)
+                document.head.appendChild(
+                    isScript(child) ? cloneScriptTag(child) : child
+                )
             }
         }
-    }
-
-    // How to free up the garbage collector?
-
-    // Remove existing non-asset elements like meta, base, title, template.
-    for (let child of Array.from(document.head.children)) {
-        if (! isAsset(child)) child.remove()
-    }
-
-    // Add new non-asset elements left over in the new head element.
-    for (let child of Array.from(newHead.children)) {
-        document.head.appendChild(child)
     }
 }
 
@@ -108,12 +95,14 @@ function isTracked(el) {
 }
 
 function isAsset(el) {
-    return (el.tagName.toLowerCase() === 'link' && el.getAttribute('rel').toLowerCase() === 'stylesheet')
-        || el.tagName.toLowerCase() === 'style'
-        || el.tagName.toLowerCase() === 'script'
+    return (
+        (el instanceof HTMLLinkElement &&
+            el.getAttribute('rel').toLowerCase() === 'stylesheet') ||
+        el instanceof HTMLStyleElement ||
+        el instanceof HTMLScriptElement
+    )
 }
 
-function isScript(el)   {
-    return el.tagName.toLowerCase() === 'script'
+function isScript(el) {
+    return el instanceof HTMLScriptElement
 }
-
