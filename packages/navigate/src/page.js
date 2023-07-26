@@ -15,15 +15,15 @@ export function swapCurrentPageWithNewHtml(html, andThen) {
 
     // @todo: only setTimeout when applying transitions
     // setTimeout(() => {
-    let oldBody = document.body
-
-    document.body.replaceWith(newBody)
-
-    Alpine.destroyTree(oldBody)
-
-    transitionIn(newBody)
-
-    andThen()
+        let oldBody = document.body
+    
+        document.body.replaceWith(newBody)
+    
+        Alpine.destroyTree(oldBody)
+    
+        transitionIn(newBody)
+    
+        andThen()
     // }, 0)
 }
 
@@ -96,10 +96,10 @@ function isTracked(el) {
 
 function isAsset(el) {
     return (
-        (el instanceof HTMLLinkElement &&
-            el.getAttribute('rel').toLowerCase() === 'stylesheet') ||
-        el instanceof HTMLStyleElement ||
-        el instanceof HTMLScriptElement
+        (el instanceof HTMLLinkElement
+            && el.getAttribute('rel').toLowerCase() === 'stylesheet')
+        || el instanceof HTMLStyleElement
+        || el instanceof HTMLScriptElement
     )
 }
 
