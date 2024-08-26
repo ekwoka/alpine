@@ -9,6 +9,8 @@ import { skipDuringClone } from '../clone'
 directive('if', (el, { expression }, { effect, cleanup }) => {
     if (el.tagName.toLowerCase() !== 'template') warn('x-if can only be used on a <template> tag', el)
 
+    el._x_if = { expression };
+    
     let evaluate = evaluateLater(el, expression)
 
     let show = () => {

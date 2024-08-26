@@ -213,6 +213,7 @@ let directiveOrder = [
     'transition',
     'show',
     'if',
+    // 'else',
     DEFAULT,
     'teleport',
 ]
