@@ -113,3 +113,51 @@ test('x-else-if works correctly without x-else',
         get('h3').should(notExist());
     }
 );
+
+test(
+    "x-else-if works with overlapping conditions",
+    html`
+        <div x-data="{ value: 3 }">
+            <button @click="value = 1">Set to 1</button>
+            <button @click="value = 2">Set to 2</button>
+            <button @click="value = 3">Set to 3</button>
+            <button @click="value = 4">Set to 4</button>
+
+            <template x-if="value === 1">
+                <h1>Value is 1</h1>
+            </template>
+            <template x-else-if="!(value % 2)">
+                <h2>Value is 2</h2>
+            </template>
+            <template x-else-if="value % 2">
+                <h3>Value is 3</h3>
+            </template>
+            <!-- No x-else here -->
+        </div>
+    `,
+    ({ get }) => {
+        // Initial value should be 3
+        get("h3").should("contain", "Value is 3");
+
+        get("button").contains("Set to 1").click();
+        get("h1").should("contain", "Value is 1");
+        get("h2").should(notExist());
+        get("h3").should(notExist());
+
+        get("button").contains("Set to 2").click();
+        get("h1").should(notExist());
+        get("h2").should("contain", "Value is 2");
+        get("h3").should(notExist());
+
+        get("button").contains("Set to 3").click();
+        get("h1").should(notExist());
+        get("h2").should(notExist());
+        get("h3").should("contain", "Value is 3");
+
+        // Test with a value that doesn't match any x-if or x-else-if condition
+        get("button").contains("Set to 4").click();
+        get("h1").should(notExist());
+        get("h2").should(notExist());
+        get("h3").should(notExist());
+    }
+);
