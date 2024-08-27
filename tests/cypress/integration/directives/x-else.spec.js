@@ -55,7 +55,6 @@ test('x-else when if condition is true',
     }
 )
 
-
 test('x-else with nested conditions and persistent inner state',
     html`
         <div x-data="{ outer: false, inner: false }">
@@ -112,7 +111,6 @@ test('x-else with nested conditions and persistent inner state',
     }
 )
 
-
 test('x-else works inside x-for loop',
     html`
         <div x-data="{ items: [{id: 1, show: false}, {id: 2, show: true}] }">
@@ -159,29 +157,6 @@ test('x-else with empty x-for list',
     `,
     ({ get }) => {
         get('span').should('have.text', 'No items available');
-    }
-);
-
-test('multiple x-else directives at different levels',
-    html`
-        <div x-data="{ level: 1 }">
-            <button @click="level = (level % 3) + 1">Toggle Level</button>
-
-            <template x-if="level === 1">
-                <h1>Level 1</h1>
-            </template>
-            <template x-else-if="level === 2">
-                <h2>Level 2</h2>
-            </template>
-            <template x-else-if="level === 3">
-                <h3>Level 3</h3>
-            </template>
-            <template x-else>
-                <h4>Default</h4>
-            </template>
-        </div>
-    `,
-    ({ get }) => {
     }
 );
 
