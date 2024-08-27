@@ -161,3 +161,40 @@ test(
         get("h3").should(notExist());
     }
 );
+
+test(
+    "x-else-if works when conditions have different dependencies",
+    html`
+        <div x-data="{ value: 1, text: 'hello' }">
+            <button @click="value = 1">Set to 1</button>
+            <button @click="value = 2">Set to 2</button>
+            <button @click="value = 3">Set to 3</button>
+
+            <template x-if="value === 1">
+                <h1>Value is 1</h1>
+            </template>
+            <template x-else-if="text">
+                <h2>Value is 2</h2>
+            </template>
+            <template x-else-if="value === 3">
+                <h3>Value is 3</h3>
+            </template>
+            <!-- No x-else here -->
+        </div>
+    `,
+    ({ get }) => {
+        get("h1").should("contain", "Value is 1");
+        get("h2").should(notExist());
+        get("h3").should(notExist());
+
+        get("button").contains("Set to 2").click();
+        get("h1").should(notExist());
+        get("h2").should("contain", "Value is 2");
+        get("h3").should(notExist());
+
+        get("button").contains("Set to 3").click();
+        get("h1").should(notExist());
+        get("h2").should("contain", "Value is 2");
+        get("h3").should(notExist());
+    }
+);
